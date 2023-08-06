@@ -1,0 +1,48 @@
+services:
+  db:
+    image: postgres:15.3-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: postgres
+    volumes:
+      - postgres_db_user:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    ports:
+      - "25432:5432"
+    networks:
+      user-network:
+
+  ddca-be:
+    image: ddca-be
+    networks:
+      ddca-be-network:
+      user-network:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ddca-be
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/postgres
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=123456
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SERVER_PORT=8081
+    ports:
+      - "8081:8081"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_db_user:
+
+networks:
+  user-network:
+    driver: bridge
+  ddca-be-network:
+    name: ddca-be-network

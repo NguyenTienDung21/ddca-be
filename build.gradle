@@ -1,0 +1,86 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.0.6'
+	id 'io.spring.dependency-management' version '1.1.0'
+	id 'application'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '17'
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.kafka:spring-kafka'
+	implementation 'javax.servlet:javax.servlet-api:3.1.0'
+	implementation 'com.corundumstudio.socketio:netty-socketio:1.7.17'
+	implementation 'p6spy:p6spy:3.9.1'
+	implementation 'org.postgresql:postgresql:42.3.8'
+	implementation 'org.springframework.boot:spring-boot-starter-websocket:3.1.0'
+	implementation group: 'org.mindrot', name: 'jbcrypt', version: '0.4'
+	implementation 'com.pusher:pusher-http-java:1.0.0'
+
+	//Jwts library for JWT
+	// https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt
+	implementation group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
+
+	//This library needs to work with the Jwt Library
+	// https://mvnrepository.com/artifact/javax.xml.bind/jaxb-api
+	implementation group: 'javax.xml.bind', name: 'jaxb-api', version: '2.4.0-b180830.0359'
+
+
+	//This library provide date time support, to prevent the error
+	/**
+	 * Servlet.service() for servlet [dispatcherServlet] in context with path [] threw exception [Request processing failed: java.lang.IllegalStateException: Unable to serialize claims object to json.] with root cause
+	 com.fasterxml.jackson.databind.exc.InvalidDefinitionException: Java 8 date/time type `java.time.LocalDateTime` not supported by default: add Module "com.fasterxml.jackson.datatype:jackson-datatype-jsr310" to enable handling (through reference chain: io.jsonwebtoken.impl.DefaultClaims["session"]->org.hibernate.collection.spi.PersistentBag[0]->com.example.ddcabe.Session.Session["createdAt"])
+	 *
+	 */
+	// https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jsr310
+	//implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.15.2'
+
+	// https://mvnrepository.com/artifact/com.fasterxml.jackson.datatype/jackson-datatype-jsr310
+	implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.14.2'
+
+	// https://mvnrepository.com/artifact/org.threeten/threetenbp
+	implementation group: 'org.threeten', name: 'threetenbp', version: '1.6.8'
+
+
+
+	compileOnly 'org.projectlombok:lombok'
+	runtimeOnly 'org.postgresql:postgresql'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.kafka:spring-kafka-test'
+	// https://mvnrepository.com/artifact/org.mockito/mockito-core
+	testImplementation group: 'org.mockito', name: 'mockito-core', version: '5.4.0'
+
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+jar {
+
+	duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
+
+	manifest {
+		attributes "Main-Class": "com.example.ddcabe.DdcaBeApplication"
+	}
+
+	from {
+		configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+	}
+}
